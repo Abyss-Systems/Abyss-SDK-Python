@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "abyss-sdk"
+name = "abyss-ai-sdk"
 version = "0.1.0"
 description = "Multi-provider AI utility with structured responses and streaming"
 readme = "README.md"
@@ -17,4 +17,7 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/abysssystems/abyss-sdk-py"
+Homepage = "https://github.com/Abyss-Systems/Abyss-SDK-Python"
+
+[tool.hatch.build.targets.wheel]
+packages = ["abyss"]
