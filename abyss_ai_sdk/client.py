@@ -3,6 +3,7 @@ from .types import AbyssConfig, AskOptions, AskResult, EmbedOptions, EmbedResult
 from .providers.groq import groq_ask, groq_stream
 from .providers.openai import openai_ask, openai_stream, openai_embed
 from .providers.anthropic import anthropic_ask, anthropic_stream
+from .errors import AbyssSchemaError
 
 DEFAULT_MODELS = {
     "groq": "llama-3.1-8b-instant",
@@ -16,13 +17,15 @@ def _build_system(schema_cls, base: str | None) -> str | None:
         parts.append(base)
     if schema_cls:
         parts.append("Respond ONLY with a valid JSON object. No markdown, no explanation, just raw JSON.")
-        import json
         parts.append(f"Schema fields: {list(schema_cls.model_fields.keys())}")
     return "\n\n".join(parts) if parts else None
 
 def _parse_structured(raw: str, schema_cls):
-    cleaned = raw.replace("```json", "").replace("```", "").strip()
-    return schema_cls.model_validate_json(cleaned)
+    try:
+        cleaned = raw.replace("```json", "").replace("```", "").strip()
+        return schema_cls.model_validate_json(cleaned)
+    except Exception as e:
+        raise AbyssSchemaError(f"Failed to parse structured response: {e}")
 
 def ask(config: AbyssConfig, options: AskOptions) -> AskResult:
     model = config.model or DEFAULT_MODELS[config.provider]
